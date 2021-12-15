@@ -3,8 +3,73 @@
  */
 package cgm.exercise;
 
+import java.io.Console;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Scanner;
+
 public class App {
+    static Question promptNewQuestion(Scanner input) {
+        System.out.println("Please enter a new question (<question>? (\\\"<answer>\\\")+) ");
+        System.out.print("> ");
+
+        return Question.parse(input.nextLine());
+    }
+
+    static void askQuestion(Scanner input, List<Question> questions) {
+        System.out.println("What do you want to know?");
+        System.out.print("> ");
+
+        var rawQuestion = input.nextLine();
+        var maybeQuestion = questions
+                .stream()
+                .filter(q -> q.getQuestion().equals(rawQuestion))
+                .findFirst();
+
+        if (maybeQuestion.isPresent()) {
+            for (var answer : maybeQuestion.get().getAnswers()) {
+                System.out.println("\t" + answer);
+            }
+        } else {
+            System.out.println("\tthe answer to life, universe and everything is 42");
+        }
+    }
+
     public static void main(String[] args) {
-        System.out.println("Hello World");
+        var questions = new LinkedList<Question>();
+
+        try(var input = new Scanner(System.in)) {
+            while(true) {
+                System.out.println("What do you want to do? (type 'exit' to abort the process)");
+                System.out.println("    1. Enter a new question");
+                System.out.println("    2. Ask a question");
+                System.out.print("> ");
+
+                try {
+                    var rawChoice = input.nextLine();
+
+                    if (rawChoice.equals("exit")) {
+                        break;
+                    }
+
+                    var choice = Integer.parseInt(rawChoice);
+
+                    if (choice == 1) {
+                        try {
+                            questions.add(promptNewQuestion(input));
+                        } catch (Error e) {
+                            System.out.println("ERROR: " + e.getMessage());
+                        }
+                    } else if (choice == 2) {
+                        askQuestion(input, questions);
+                    } else {
+                        System.out.println("ERROR: not a valid choice");
+                    }
+                } catch (NumberFormatException ex) {
+                    System.out.println("ERROR: not a number");
+                }
+                System.out.println();
+            }
+        }
     }
 }
