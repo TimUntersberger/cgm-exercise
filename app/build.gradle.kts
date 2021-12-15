@@ -36,3 +36,7 @@ application {
     // Define the main class for the application.
     mainClass.set("cgm.exercise.App")
 }
+
+tasks.named<JavaExec>("run") {
+    standardInput = System.`in`
+}
